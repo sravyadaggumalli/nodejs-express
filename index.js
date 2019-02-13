@@ -1,7 +1,7 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 var mongoose   = require('mongoose');
-var Bear = require('./models/bear');
+var Employee = require('./models/employee');
 
 const connectionUri = `${process.env.MONGODB_URI}node-api?retryWrites=true`;
 
@@ -21,62 +21,51 @@ router.get('/', function(req, res) {
     res.json({ message: 'hooray! welcome to our api!' });   
 });
 
-router.route('/bears')
+router.route('/employees')
 .post(function(req, res) {
 
-    var bear = new Bear(); 
-    bear.name = req.body.name;
-    bear.save(function(err) {
-        if (err)
-            res.send(err);
+    var employee = new Employee(req.body); 
+    employee.save(function(err) {
+        if (err) return res.status(500).send(err);
 
-        res.json({ message: 'Bear created!' });
+        return res.status(200).send(employee);
     });
 
 })
 
 .get(function(req, res) {
-    Bear.find(function(err, bears) {
-        if (err)
-            res.send(err);
+    Employee.find(function(err, employees) {
+        if (err) return res.status(500).send(err);
 
-        res.json(bears);
+        return res.status(200).json(employees);
     });
 });
 
-router.route('/bears/:bear_id')
+router.route('/employees/:employee_id')
 .get(function(req, res) {
-    Bear.findById(req.params.bear_id, function(err, bear) {
-        if (err)
-            res.send(err);
-        res.json(bear);
+    Employee.findById(req.params.employee_id, function(err, employee) {
+        if (err) return res.status(500).send(err);
+        return res.json(employee);
     });
 })
 .put(function(req, res) {
-    Bear.findById(req.params.bear_id, function(err, bear) {
+    Employee.findByIdAndUpdate(req.params.employee_id, req.body, {new: true}, function(err, employee) {
 
-        if (err)
-            res.send(err);
-
-        bear.name = req.body.name;
-        bear.save(function(err) {
-            if (err)
-                res.send(err);
-
-            res.json({ message: 'Bear updated!' });
-        });
-
+        if (err) return res.status(500).send(err);
+        return res.send(employee);
     });
 })
 
 .delete(function(req, res) {
-    Bear.remove({
-        _id: req.params.bear_id
-    }, function(err, bear) {
-        if (err)
-            res.send(err);
-
-        res.json({ message: 'Successfully deleted' });
+    Employee.findByIdAndRemove(
+        req.params.employee_id
+    , function(err, employee) {
+        if (err) return res.status(500).send(err);
+        const response = {
+            message: "Employee successfully deleted",
+            id: employee._id
+        };
+        return res.status(200).send(response);
     });
 });
 
