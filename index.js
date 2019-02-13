@@ -1,10 +1,83 @@
-const express = require('express')
-const app = express()
+var express = require("express");
+var bodyParser = require("body-parser");
+var mongoose   = require('mongoose');
+var Bear = require('./models/bear');
+console.log('***********************', process.env.MONGODB_URI);
+mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true});
+var app = express();
 
-app.get('*', (req, res) => {
-    res.write('<h1><marquee direction=right>Hello from Express path `/` on Now 2.0!</marquee></h1>')
-    res.write('<h2>Go to <a href="/about">/about</a></h2>')
-    res.end()
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+var router = express.Router();
+router.use(function(req, res, next) {
+    console.log('Something is happening.');
+    next();
+});
+
+router.get('/', function(req, res) {
+    res.json({ message: 'hooray! welcome to our api!' });   
+});
+
+router.route('/bears')
+.post(function(req, res) {
+
+    var bear = new Bear(); 
+    bear.name = req.body.name;
+    bear.save(function(err) {
+        if (err)
+            res.send(err);
+
+        res.json({ message: 'Bear created!' });
+    });
+
 })
 
-module.exports = app
+.get(function(req, res) {
+    Bear.find(function(err, bears) {
+        if (err)
+            res.send(err);
+
+        res.json(bears);
+    });
+});
+
+router.route('/bears/:bear_id')
+.get(function(req, res) {
+    Bear.findById(req.params.bear_id, function(err, bear) {
+        if (err)
+            res.send(err);
+        res.json(bear);
+    });
+})
+.put(function(req, res) {
+    Bear.findById(req.params.bear_id, function(err, bear) {
+
+        if (err)
+            res.send(err);
+
+        bear.name = req.body.name;
+        bear.save(function(err) {
+            if (err)
+                res.send(err);
+
+            res.json({ message: 'Bear updated!' });
+        });
+
+    });
+})
+
+.delete(function(req, res) {
+    Bear.remove({
+        _id: req.params.bear_id
+    }, function(err, bear) {
+        if (err)
+            res.send(err);
+
+        res.json({ message: 'Successfully deleted' });
+    });
+});
+
+app.use('/api', router);
+
+module.exports = app;
