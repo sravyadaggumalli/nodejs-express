@@ -2,8 +2,10 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var mongoose   = require('mongoose');
 var Bear = require('./models/bear');
-console.log('***********************', process.env.MONGODB_URI);
-mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true});
+
+const connectionUri = `${process.env.MONGODB_URI}node-api?retryWrites=true`;
+
+mongoose.connect(connectionUri, {useNewUrlParser: true});
 var app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
