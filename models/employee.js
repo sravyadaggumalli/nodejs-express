@@ -5,7 +5,6 @@ var EmployeeSchema = new Schema({
     type: String,
     required: true,
     index: true,
-    unique: true,
   },
   name: {
     first: {
