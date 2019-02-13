@@ -5,11 +5,15 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "start": "node ."
+    "start": "node .",
+    "format": "prettier --write '**/*.js'"
   },
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "mongoose": "^5.4.11"
+  },
+  "devDependencies": {
+    "prettier": "1.16.4"
   }
 }

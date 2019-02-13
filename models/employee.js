@@ -1,43 +1,44 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var EmployeeSchema = new Schema({
-  id: {
+  employeeId: {
     type: String,
     required: true,
-    unique: true
+    index: true,
+    unique: true,
   },
   name: {
     first: {
       type: String,
-      required: true
+      required: true,
     },
     last: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   team: {
     type: Schema.Types.ObjectId,
-    ref: 'Team'
+    ref: 'Team',
   },
   image: {
     type: String,
-    default: 'images/user.png'
+    default: 'images/user.png',
   },
   address: {
     lines: {
-      type: [String]
+      type: [String],
     },
     city: {
-      type: String
+      type: String,
     },
     state: {
-      type: String
+      type: String,
     },
     zip: {
-      type: Number
-    }
-  }
+      type: Number,
+    },
+  },
 });
 
 module.exports = mongoose.model('Employee', EmployeeSchema);
