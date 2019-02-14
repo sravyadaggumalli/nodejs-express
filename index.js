@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var aqp = require('api-query-params');
 var Employee = require('./models/employee');
 
 const connectionUri = `${process.env.MONGODB_URI}node-api?retryWrites=true`;
@@ -27,21 +28,27 @@ router
     var employee = new Employee(req.body);
     employee.save(function(err) {
       if (err) return res.status(500).send(err);
-      return res.status(200).send(employee);
+      return res.json(employee);
     });
   })
 
   .get(function(req, res) {
-    Employee.find(function(err, employees) {
+    const { filter, skip, limit, sort, projection } = aqp(req.query);
+    Employee.find(filter)
+    .skip(skip)
+    .limit(limit)
+    .sort(sort)
+    .select(projection)
+    .exec(function(err, employees) {
       if (err) return res.status(500).send(err);
-      return res.status(200).json(employees);
+      return res.json(employees);
     });
   });
 
 router
-  .route('/employees/:employeeId')
+  .route('/employees/:id')
   .get(function(req, res) {
-    Employee.findOne({ employeeId: req.params.employeeId }, function(
+    Employee.findById(req.params.id, function(
       err,
       employee
     ) {
@@ -50,19 +57,19 @@ router
     });
   })
   .put(function(req, res) {
-    Employee.findOneAndUpdate(
-      { employeeId: req.params.employeeId },
+    Employee.findByIdAndUpdate(
+      req.params.employeeId,
       req.body,
       { new: true },
       function(err, employee) {
         if (err) return res.status(500).send(err);
-        return res.send(employee);
+        return res.json(employee);
       }
     );
   })
 
   .delete(function(req, res) {
-    Employee.findOneAndRemove({ employeeId: req.params.employeeId }, function(
+    Employee.findByIdAndRemove(req.params.id, function(
       err,
       employee
     ) {
@@ -71,7 +78,7 @@ router
         message: 'Employee successfully deleted',
         id: employee._id,
       };
-      return res.status(200).send(response);
+      return res.json(response);
     });
   });
 
