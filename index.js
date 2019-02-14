@@ -58,7 +58,7 @@ router
   })
   .put(function(req, res) {
     Employee.findByIdAndUpdate(
-      req.params.employeeId,
+      req.params.id,
       req.body,
       { new: true },
       function(err, employee) {
